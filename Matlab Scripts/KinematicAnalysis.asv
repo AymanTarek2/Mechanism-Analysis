@@ -1,0 +1,49 @@
+close
+clc
+
+%position analysis
+r1=67; r2=20; r4=90; r5=70; r6=120; r7=163; phi7=155.7;
+pos_input = [r1, r2, r4, r5, r6, r7, phi7];
+options = optimset('display', 'off');
+pos_output = zeros(361, 4);
+i=1;
+
+for theta=0:1:360
+    phi2(i)=theta;
+    pos_output(i, :) = fsolve(@position,[1 1 1 1],options,theta,pos_input);
+    i=i+1;
+end
+
+graphxx(phi2', pos_output(:,1), 'Theta 2', 'r3');
+graphxx(phi2', pos_output(:,2), 'Theta 2', 'Theta 3');
+graphxx(phi2', pos_output(:,3), 'Theta 2', 'Theta 5');
+graphxx(phi2', pos_output(:,4), 'Theta 2', 'Theta 6');
+
+
+%velocity analysis
+w2 = 20;
+vel_input = [r2,r4,r5,r6,w2];
+vel_output = zeros(361, 4);
+
+i=1;
+for theta=0:1:360
+    vel_output(i,:) = fsolve(@velocity,[1 1 1 1],options,theta, vel_input, pos_output(i, :));
+    i=i+1;
+end
+disp(vel_output);
+
+graphxx(phi2', vel_output(:,1), 'Theta 2', 'r3dot');
+graphxx(phi2', vel_output(:,2), 'Theta 2', 'w3');
+graphxx(phi2', vel_output(:,3), 'Theta 2', 'w5');
+graphxx(phi2', vel_output(:,4), 'Theta 2', 'w6');
+
+
+%acceleration analysis
+acc_input = vel_input;
+acc_output = zeros(361, 4);
+i=1;
+
+for theta=0:1:360
+    acc_output(i,:) = fsolve(@velocity,[1 1 1 1],options, theta, acc_input, pos_output(i, :), vel_output);
+    i=i+1;
+end
